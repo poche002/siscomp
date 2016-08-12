@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import  Column, Integer, String, ForeignKey, create_engine, Table, Text, MetaData
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 from pecan import conf
 
 """
@@ -9,6 +9,11 @@ class which maintains a catalog of classes and tables relative to that base -
 this is known as the declarative base class
 """
 Base = declarative_base()
+
+#Relacion muchos a muchos entre users y sistemas clientes
+user_sis_client_association = Table('user_sis_client_association', Base.metadata,
+                                    Column('user_id', ForeignKey('users.id'), primary_key=True),
+                                    Column('client_system_id', ForeignKey('client_systems.id'), primary_key=True))
 
 class User(Base):
     __tablename__ = 'users'
@@ -21,30 +26,37 @@ class User(Base):
     phone = Column(Integer)
     admin = Column(Integer)
 
+    client_systems = relationship('Client_system',
+                                 secondary=user_sis_client_association,
+                                 back_populates='users')
+
     def __repr__(self):
         return "<User(user_id='%s', fullname='%s', password='%s', email='%s', phone='%s', admin='%s')>" % \
                (self.user_id, self.fullname, self.password, self.email, self.phone, self.admin)
 
-class Sis_client(Base):
-    __tablename__ = 'sis_clients'
+class Client_system(Base):
+    __tablename__ = 'client_systems'
 
     id = Column(Integer, primary_key=True)
-    sis_client_id = Column(String)
+    client_system_id = Column(String)
     detail = Column(String)
     last_keepalive = Column(String)
     state = Column(Integer)
 
-#Relacion muchos a muchos entre users y sistemas clientes
-user_sis_client_association = Table('association', Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.id')),
-    Column('sis_client_id', Integer, ForeignKey('sis_clients.id'))
-)
+    users = relationship('User',
+                        secondary=user_sis_client_association,
+                        back_populates='client_systems')
+
+    def __repr__(self):
+        return "<Client_system(client_system_id='%s', detail='%s', last_keepalive='%s', state='%s')>" % \
+               (self.client_system_id, self.detail, self.last_keepalive, self.state)
+
 
 class Alert_CO(Base):
     __tablename__ = 'alerts_co'
 
     id = Column(Integer, primary_key=True)
-    sis_client_id = Column(Integer, ForeignKey('sis_clients.id'))
+    client_system_id = Column(Integer, ForeignKey('client_systems.id'))
     timestamp = Column(String)
     measure_value = Column(String)
 
@@ -52,7 +64,7 @@ class Alert_fail_sensor(Base):
     __tablename__ = 'alerts_failsensor'
 
     id = Column(Integer, primary_key=True)
-    sis_client_id = Column(Integer, ForeignKey('sis_clients.id'))
+    client_system_id = Column(Integer, ForeignKey('client_systems.id'))
     timestamp = Column(String)
 
 #Funciones de la base de datos
@@ -65,7 +77,7 @@ def init_model():
 #Crea una sesion para comunicarse con la base de datos
 engine = init_model()
 
-
+"""FUNCIONES PARA USERS """
 def get_all_users():
     Session = sessionmaker(bind=engine)
     sess = Session()
@@ -100,5 +112,85 @@ def add_user(user_id, password, fullname, email, phone, admin):
         return False
 
 
+def del_user(user_id='none', email='none', phone=0):
+    Session = sessionmaker(bind=engine)
+    sess = Session()
+    if sess.query(User).filter(User.user_id == user_id).count():
+        sess.delete(sess.query(User).filter(User.user_id == user_id).first())
+    elif sess.query(User).filter(User.email == email).count():
+        sess.delete(sess.query(User).filter(User.email == email).first())
+    elif sess.query(User).filter(User.phone == phone).count():
+        sess.delete(sess.query(User).filter(User.phone == phone).first())
+    sess.commit()
 
+
+def edit_user(user_id_old='none', email_old='none', phone_old=0,
+              user_id='null', password='null', fullname='null', email='null', phone=0, admin=1):
+    Session = sessionmaker(bind=engine)
+    sess = Session()
+    if sess.query(User).filter(User.user_id == user_id_old).count():
+        sess.query(User).filter(User.user_id == user_id_old).update({"user_id" : user_id, "password" : password,
+                                                                     "fullname" : fullname, "email" : email,
+                                                                     "phone" : phone, "admin" : admin})
+    elif sess.query(User).filter(User.email == email_old).count():
+        sess.query(User).filter(User.email == email_old).update({"user_id" : user_id, "password" : password,
+                                                                     "fullname" : fullname, "email" : email,
+                                                                     "phone" : phone, "admin" : admin})
+    elif sess.query(User).filter(User.phone == phone_old).count():
+        sess.query(User).filter(User.phone == phone_old).update({"user_id" : user_id, "password" : password,
+                                                                     "fullname" : fullname, "email" : email,
+                                                                     "phone" : phone, "admin" : admin})
+    sess.commit()
+
+
+"""FUNCIONES PARA CLIENT_SYSTEMS"""
+def get_all_client_systems():
+    Session = sessionmaker(bind=engine)
+    sess = Session()
+    return sess.query(Client_system).all()
+
+
+def get_client_system(client_system_id):
+    Session = sessionmaker(bind=engine)
+    sess = Session()
+    return sess.query(Client_system).filter(Client_system.client_system_id == client_system_id).first()
+
+
+def add_client_system(client_system_id, detail):
+    try:
+        Session = sessionmaker(bind=engine)
+        sess = Session()
+        new_client_system = Client_system(client_system_id=client_system_id, detail=detail, last_keepalive='null', state=1)
+        sess.add(new_client_system)
+        sess.commit()
+        return True
+    except ValueError:
+        return False
+
+
+def del_client_system(client_system_id):
+    Session = sessionmaker(bind=engine)
+    sess = Session()
+    if sess.query(Client_system).filter(Client_system.client_system_id == client_system_id).count():
+        sess.delete(sess.query(Client_system).filter(Client_system.client_system_id == client_system_id).first())
+    sess.commit()
+
+
+def edit_client_system(client_system_id_old, client_system_id, detail, last_keepalive, state):
+    Session = sessionmaker(bind=engine)
+    sess = Session()
+    if sess.query(Client_system).filter(Client_system.client_system_id == client_system_id_old).count():
+            sess.query(Client_system).\
+                filter(Client_system.client_system_id == client_system_id_old).\
+                update({"client_system_id" : client_system_id, "detail" : detail,
+                        "last_keepalive" : last_keepalive, "state" : state})
+    sess.commit()
+
+
+def add_client_system_to_user(user_email, client_system_id):
+    Session = sessionmaker(bind=engine)
+    sess = Session()
+    aux = sess.query(User).filter(User.email==user_email).first()
+    aux.client_systems.append(sess.query(Client_system).filter(Client_system.client_system_id == \
+                                                              client_system_id).first())
 
