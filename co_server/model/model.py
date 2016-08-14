@@ -2,6 +2,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import  Column, Integer, String, ForeignKey, create_engine, Table, Text, MetaData
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 from pecan import conf
+import datetime
+import time
 
 """
 Classes mapped using the Declarative system are defined in terms of a base
@@ -47,6 +49,8 @@ class Client_system(Base):
                         secondary=user_sis_client_association,
                         back_populates='client_systems')
 
+    co_alerts= relationship('Alert_CO')
+
     def __repr__(self):
         return "<Client_system(client_system_id='%s', detail='%s', last_keepalive='%s', state='%s')>" % \
                (self.client_system_id, self.detail, self.last_keepalive, self.state)
@@ -60,6 +64,10 @@ class Alert_CO(Base):
     timestamp = Column(String)
     measure_value = Column(String)
 
+    def __repr__(self):
+        return "Alert_CO(client_system_id='%s', timestamp='%s', measure_value='%s')" % \
+               (self.client_system_id, self.timestamp, self.measure_value)
+
 class Alert_fail_sensor(Base):
     __tablename__ = 'alerts_failsensor'
 
@@ -67,25 +75,32 @@ class Alert_fail_sensor(Base):
     client_system_id = Column(Integer, ForeignKey('client_systems.id'))
     timestamp = Column(String)
 
+    def __repr__(self):
+        return "Alert_CO(client_system_id='%s', timestamp='%s')" % \
+               (self.client_system_id, self.timestamp)
+
+
 #Funciones de la base de datos
+def _engine_from_config(configuration):
+    configuration = dict(configuration)
+    url = configuration.pop('url')
+    return create_engine(url, **configuration)
+
+
 def init_model():
-    motor = create_engine('sqlite:///data/co_server.db')
-    #Crea la base de datos (tablas)
-    Base.metadata.create_all(motor)
-    return motor
+    conf.sqlalchemy.engine = _engine_from_config(conf.sqlalchemy)
+    Base.metadata.create_all(conf.sqlalchemy.engine)
 
-#Crea una sesion para comunicarse con la base de datos
-engine = init_model()
 
-"""FUNCIONES PARA USERS """
+#FUNCIONES PARA USERS
 def get_all_users():
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     return sess.query(User).all()
 
 
 def get_user(user_id='none', email='none', phone=0):
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     aux = sess.query(User).filter(User.user_id == user_id).first()
     aux2 = sess.query(User).filter(User.email == email).first()
@@ -102,7 +117,7 @@ def get_user(user_id='none', email='none', phone=0):
 
 def add_user(user_id, password, fullname, email, phone, admin):
     try:
-        Session = sessionmaker(bind=engine)
+        Session = sessionmaker(bind=conf.sqlalchemy.engine)
         sess = Session()
         new_user = User(user_id=user_id, password=password, fullname=fullname, email=email, phone=phone, admin=admin)
         sess.add(new_user)
@@ -113,7 +128,7 @@ def add_user(user_id, password, fullname, email, phone, admin):
 
 
 def del_user(user_id='none', email='none', phone=0):
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     if sess.query(User).filter(User.user_id == user_id).count():
         sess.delete(sess.query(User).filter(User.user_id == user_id).first())
@@ -126,7 +141,7 @@ def del_user(user_id='none', email='none', phone=0):
 
 def edit_user(user_id_old='none', email_old='none', phone_old=0,
               user_id='null', password='null', fullname='null', email='null', phone=0, admin=1):
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     if sess.query(User).filter(User.user_id == user_id_old).count():
         sess.query(User).filter(User.user_id == user_id_old).update({"user_id" : user_id, "password" : password,
@@ -145,20 +160,20 @@ def edit_user(user_id_old='none', email_old='none', phone_old=0,
 
 """FUNCIONES PARA CLIENT_SYSTEMS"""
 def get_all_client_systems():
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     return sess.query(Client_system).all()
 
 
 def get_client_system(client_system_id):
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     return sess.query(Client_system).filter(Client_system.client_system_id == client_system_id).first()
 
 
 def add_client_system(client_system_id, detail):
     try:
-        Session = sessionmaker(bind=engine)
+        Session = sessionmaker(bind=conf.sqlalchemy.engine)
         sess = Session()
         new_client_system = Client_system(client_system_id=client_system_id, detail=detail, last_keepalive='null', state=1)
         sess.add(new_client_system)
@@ -169,7 +184,7 @@ def add_client_system(client_system_id, detail):
 
 
 def del_client_system(client_system_id):
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     if sess.query(Client_system).filter(Client_system.client_system_id == client_system_id).count():
         sess.delete(sess.query(Client_system).filter(Client_system.client_system_id == client_system_id).first())
@@ -177,7 +192,7 @@ def del_client_system(client_system_id):
 
 
 def edit_client_system(client_system_id_old, client_system_id, detail, last_keepalive, state):
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     if sess.query(Client_system).filter(Client_system.client_system_id == client_system_id_old).count():
             sess.query(Client_system).\
@@ -188,9 +203,29 @@ def edit_client_system(client_system_id_old, client_system_id, detail, last_keep
 
 
 def add_client_system_to_user(user_email, client_system_id):
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     aux = sess.query(User).filter(User.email==user_email).first()
     aux.client_systems.append(sess.query(Client_system).filter(Client_system.client_system_id == \
                                                               client_system_id).first())
+    sess.commit()
 
+
+def add_co_alert(clientsystem_id, measure_value):
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
+    sess = Session()
+    ts = time.time()
+    timestamp=datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    new_co_alert = Alert_CO(client_system_id=clientsystem_id, timestamp=timestamp, measure_value=measure_value)
+    sess.add(new_co_alert)
+    sess.commit()
+
+
+def add_fail_system_alert(clientsystem_id):
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
+    sess = Session()
+    ts = time.time()
+    timestamp=datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    new_fail_system_alert = Alert_fail_sensor(client_system_id=clientsystem_id, timestamp=timestamp)
+    sess.add(new_fail_system_alert)
+    sess.commit()
