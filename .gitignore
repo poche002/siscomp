@@ -1,0 +1,12 @@
+#ignore this file
+MANIFEST.in
+
+#ignore pyc files
+*.pyc
+
+#ignore next folders
+co_server/tests/
+co_server/templates/
+co_server.egg-info/
+data/
+.idea/
