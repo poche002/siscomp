@@ -2,8 +2,12 @@ from pecan.rest import RestController
 from pecan import expose, request, response
 from co_server.model import model
 import json
+import coAlertsController
 
 class ClientSystemController(RestController):
+#    _custom_actions = {
+#    'add_co_alert': ['GET']
+#    }
 
     @expose('json')
     def get_one(self, client_id):
@@ -14,7 +18,7 @@ class ClientSystemController(RestController):
 #            for b in client.clients:                              #lista de objetos user-badge
 #                if b.cant_act >= badge.amount_necessary:
 #                    users[b.user.user_id] = b.user.fullname
-            client_dict = {'client_system_id':client.client_system_id,'detail':client.detail,'last_keepalive':client.last_keepalive,'state':client.state}
+            client_dict = {'client_system_id':client.client_system_id,'detail':client.detail,'last_keepalive':client.last_keepalive,'state':client.state, 'alerts':client.co_alerts}
             #badge_dict = {badge.badge_id:{'amount_necessary':badge.amount_necessary,'description':badge.description, 'title':badge.title, 'image':badge.image, 'data1':badge.data1,'users':users}}
             return client_dict
         else:
@@ -52,6 +56,7 @@ class ClientSystemController(RestController):
         else:
             response.status = 404
 	    return client_id
+
     @expose('json')
     def put(self, client_id_old):
         try:
@@ -66,4 +71,13 @@ class ClientSystemController(RestController):
         except ValueError:
             response.status = 400
 
-
+#    @expose('json')
+#    def add_co_alert(client_system_id, measured_value):
+#        try:
+#            client = model.get_client_system(client_system_id)
+#            return client.co_alerts
+#            if client_system_id:
+#                model.add_co_alert(client_system_id, measured_value)
+#                response.status=201
+#            else:
+#                response.status=400

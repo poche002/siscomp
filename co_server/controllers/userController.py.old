@@ -2,59 +2,25 @@ from pecan import expose, request, response
 from pecan.rest import RestController
 from pecan.secure import secure
 from co_server.model import model
-import json
-import clientSystemController
-
+#import userBadgeController
 
 
 @secure('check_permissions')
 class UserController(RestController):
-    _custom_actions = {
-    'get_one_by_email': ['GET'],
-	'get_one_by_phone': ['GET'],
-	'add_cs_to_user': ['PUT']
-    }
 
+   # badges = userBadgeController.UserBadgeController()
 
     @expose('json')
-    def get_one_by_email(self, email_param):
-        user = model.get_user(email=email_param)
-        if email_param:
-#            user_dict = {'user_id':user.user_id, 'password':user.password,'fullname':user.fullname, 'email':user.email,'phone':user.phone, 'admin':user.admin, 'sistemas':user.client_systems}
-	    user_dict = {'user_id':user.user_id, 'email':user.email, 'sistemas':user.client_systems}
-	    return user_dict 
-	else:
-	    response.status=400
-
-    @expose('json')
-    def get_one_by_phone(self, phone_param):
-	user = model.get_user(phone=phone_param)
-	if phone_param:
-            user_dict = {'user_id':user.user_id, 'password':user.password,'fullname':user.fullname, 'email':user.email,'phone':user.phone, 'admin':user.admin}
-	    return user_dict
-	else:
-	    response.status=400
-
-    @expose('json')
-    def add_cs_to_user(self, email_param, client_system_id):
-	user= model.get_user(email=email_param)
-	client= model.get_client_system(client_system_id)
-	if email_param and client_system_id:
-	    model.add_client_system_to_user(user.email, client.client_system_id)
-	    response.status=201
-	else:
-	    response.status=400
-
-    
-    @expose('json')
-    def get_one(self,user_id):
+    def get_one(self, user_id):
 #        badges = []
 	user = model.get_user(user_id)
-        if  user_id:
+	email = model.get_user(email)
+        if user:
 #            for u in user.users:
 #                badges.append({'badge_id':u.badge.badge_id,'amount_necessary':u.badge.amount_necessary,'cant_act':u.cant_act ,'description':u.badge.description, 'title':u.badge.title, 'image':u.badge.image, 'data1':u.badge.data1})
-            user_dict = {'user_id':user.user_id, 'password':user.password,'fullname':user.fullname, 'email':user.email,'phone':user.phone, 'admin':user.admin, 'sistemas':user.client_systems}
-            return user_dict
+            user_dict = {'user_id':user.user_id, 'password':user.password,'fullname':user.fullname, 'email':user.email,'phone':user.phone, 'admin':user.admin}
+            return user_dict	
+
 	else:
             response.status = 404
 
@@ -83,7 +49,7 @@ class UserController(RestController):
 
     @expose()
     def delete(self, user_id='none'):
-        if model.del_user(user_id):
+        if model.delete_user(user_id):
             response.status = 200
         else:
             response.status = 404
@@ -92,7 +58,7 @@ class UserController(RestController):
     def put(self, user_id_old):
         try:
             body = request.json
-            if model.edit_user(user_id_old, body['user_id'], body['fullname'], body['password'], body['email']):
+            if model.set_user(user_id_old, body['user_id'], body['fullname'], body['password'], body['email']):
                 response.status = 200
             else:
                 response.status = 404
