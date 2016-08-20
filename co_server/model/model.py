@@ -1,3 +1,4 @@
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import  Column, Integer, String, ForeignKey, create_engine, Table, Text, MetaData
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
@@ -92,6 +93,7 @@ def init_model():
     conf.sqlalchemy.engine = _engine_from_config(conf.sqlalchemy)
     Base.metadata.create_all(conf.sqlalchemy.engine)
 
+init_model()
 
 #FUNCIONES PARA USERS
 def get_all_users():
