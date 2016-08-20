@@ -50,6 +50,7 @@ class Client_system(Base):
                         back_populates='client_systems')
 
     co_alerts= relationship('Alert_CO')
+    fail_sensor_alerts= relationship('Alert_fail_sensor')
 
     def __repr__(self):
         return "<Client_system(client_system_id='%s', detail='%s', last_keepalive='%s', state='%s')>" % \
@@ -88,7 +89,8 @@ def _engine_from_config(configuration):
 
 
 def init_model():
-    conf.sqlalchemy.engine = _engine_from_config(conf.sqlalchemy)
+    #conf.sqlalchemy.engine = _engine_from_config(conf.sqlalchemy)
+
     Base.metadata.create_all(conf.sqlalchemy.engine)
 
 
