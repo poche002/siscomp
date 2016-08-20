@@ -174,11 +174,11 @@ def get_client_system(client_system_id):
     return sess.query(Client_system).filter(Client_system.client_system_id == client_system_id).first()
 
 
-def add_client_system(client_system_id, detail):
+def add_client_system(client_system_id):
     try:
         Session = sessionmaker(bind=conf.sqlalchemy.engine)
         sess = Session()
-        new_client_system = Client_system(client_system_id=client_system_id, detail=detail, last_keepalive='null', state=1)
+        new_client_system = Client_system(client_system_id=client_system_id, detail='null', last_keepalive='null', state=1)
         sess.add(new_client_system)
         sess.commit()
         return True
@@ -194,14 +194,25 @@ def del_client_system(client_system_id):
     sess.commit()
 
 
-def edit_client_system(client_system_id_old, client_system_id, detail, last_keepalive, state):
+def edit_client_system(client_system_id_old, client_system_id, detail):
     Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     if sess.query(Client_system).filter(Client_system.client_system_id == client_system_id_old).count():
             sess.query(Client_system).\
                 filter(Client_system.client_system_id == client_system_id_old).\
-                update({"client_system_id" : client_system_id, "detail" : detail,
-                        "last_keepalive" : last_keepalive, "state" : state})
+                update({"client_system_id" : client_system_id, "detail" : detail})
+    sess.commit()
+
+
+def keepalive_client_system(client_system_id):
+    Session = sessionmaker(bind=conf.sqlalchemy.engine)
+    sess = Session()
+    ts = time.time()
+    timestamp=datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    if sess.query(Client_system).filter(Client_system.client_system_id == client_system_id).count():
+            sess.query(Client_system).\
+                filter(Client_system.client_system_id == client_system_id).\
+                update({"last_keepalive" : timestamp, "state" : 1})
     sess.commit()
 
 
