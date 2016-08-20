@@ -5,9 +5,10 @@ import json
 import coAlertsController
 
 class ClientSystemController(RestController):
-#    _custom_actions = {
-#    'add_co_alert': ['GET']
-#    }
+    _custom_actions = {
+    'edit_keepalive': ['PUT'],
+    'edit_detail': ['PUT']
+    }
 
     @expose('json')
     def get_one(self, client_id):
@@ -18,7 +19,7 @@ class ClientSystemController(RestController):
 #            for b in client.clients:                              #lista de objetos user-badge
 #                if b.cant_act >= badge.amount_necessary:
 #                    users[b.user.user_id] = b.user.fullname
-            client_dict = {'client_system_id':client.client_system_id,'detail':client.detail,'last_keepalive':client.last_keepalive,'state':client.state, 'alerts':client.co_alerts}
+            client_dict = {'client_system_id':client.client_system_id,'detail':client.detail,'last_keepalive':client.last_keepalive,'state':client.state, 'alerts':client.co_alerts, 'fali alerts':client.fail_sensor_alerts}
             #badge_dict = {badge.badge_id:{'amount_necessary':badge.amount_necessary,'description':badge.description, 'title':badge.title, 'image':badge.image, 'data1':badge.data1,'users':users}}
             return client_dict
         else:
@@ -42,7 +43,7 @@ class ClientSystemController(RestController):
                 response.status = 409
             else:
                 try:
-	            model.add_client_system(body['client_system_id'], body['detail'])
+	            model.add_client_system(body['client_system_id'])
                 except KeyError:
                     response.status = 400
         except KeyError:
@@ -58,26 +59,26 @@ class ClientSystemController(RestController):
 	    return client_id
 
     @expose('json')
-    def put(self, client_id_old):
-        try:
-            body = request.json
-            try:
-                if model.edit_client_system(client_id_old, body['client_system_id'], body['detail'], body['last_keepalive'], body['state']):
-                    response.status = 200
-                else:
-                    response.status = 404
-            except KeyError:
-                response.status = 400
-        except ValueError:
-            response.status = 400
-
-#    @expose('json')
-#    def add_co_alert(client_system_id, measured_value):
+    def edit_detail(self, client_id_old, detail):
 #        try:
-#            client = model.get_client_system(client_system_id)
-#            return client.co_alerts
-#            if client_system_id:
-#                model.add_co_alert(client_system_id, measured_value)
-#                response.status=201
-#            else:
-#                response.status=400
+#         body = request.json
+         client= model.get_client_system(client_id_old)
+         if client.client_system_id:
+             if model.edit_client_system(client_id_old, client_id_old, detail):
+                 response.status = 200
+             else:
+                 response.status = 404
+         else:
+             response.status = 404
+#        except ValueError:
+#            response.status = 400
+
+    @expose('json')
+    def edit_keepalive(self, client_system_id):
+#        try:
+            client = model.get_client_system(client_system_id)
+            if client.client_system_id:
+                model.keepalive_client_system(client_system_id)
+                response.status=201
+            else:
+                response.status=400

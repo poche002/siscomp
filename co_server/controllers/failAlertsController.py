@@ -17,6 +17,7 @@ class FailAlertsController(RestController):
         client = model.get_client_system(client_system_id)
         if client:
             model.add_fail_system_alert(client_system_id)
+            model.fail_client_system(client_system_id, 0)
             response.status=200
         else:
             response.status=400
