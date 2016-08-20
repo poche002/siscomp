@@ -89,8 +89,7 @@ def _engine_from_config(configuration):
 
 
 def init_model():
-    #conf.sqlalchemy.engine = _engine_from_config(conf.sqlalchemy)
-
+    conf.sqlalchemy.engine = _engine_from_config(conf.sqlalchemy)
     Base.metadata.create_all(conf.sqlalchemy.engine)
 
 
