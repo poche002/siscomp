@@ -22,7 +22,8 @@ class UserController(RestController):
     # metodo para enviar emails
     @expose()
     def send_email(self, emails, subject, message):
-                fromaddr = "aurelioremonda@gmail.com"
+		#mail de origen
+                fromaddr = "mail"
                 recipients = emails
                 msg = MIMEMultipart()
                 msg['From'] = fromaddr
@@ -34,7 +35,8 @@ class UserController(RestController):
 
                 server = smtplib.SMTP('smtp.gmail.com',587)
                 server.starttls()
-                server.login(fromaddr,"cacadosquince")
+		#aca va la contraseña del mail
+                server.login(fromaddr,"contraseña")
                 text = msg.as_string()
                 server.sendmail(fromaddr, recipients, text)
                 server.quit()
