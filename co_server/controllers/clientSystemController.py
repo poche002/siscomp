@@ -3,34 +3,27 @@ from pecan import expose, request, response
 from co_server.model import model
 import json
 import coAlertsController
+import userController
 
 class ClientSystemController(RestController):
     _custom_actions = {
     'edit_keepalive': ['PUT'],
-    'edit_detail': ['PUT']
+    'edit_detail': ['PUT'],
     }
+
 
     @expose('json')
     def get_one(self, client_id):
-#        users = {}
-#        badge = model.get_badge(badge_id)
 	client = model.get_client_system(client_id)
         if client:
-#            for b in client.clients:                              #lista de objetos user-badge
-#                if b.cant_act >= badge.amount_necessary:
-#                    users[b.user.user_id] = b.user.fullname
-            client_dict = {'client_system_id':client.client_system_id,'detail':client.detail,'last_keepalive':client.last_keepalive,'state':client.state, 'alerts':client.co_alerts, 'fali alerts':client.fail_sensor_alerts}
-            #badge_dict = {badge.badge_id:{'amount_necessary':badge.amount_necessary,'description':badge.description, 'title':badge.title, 'image':badge.image, 'data1':badge.data1,'users':users}}
+            client_dict = {'client_system_id':client.client_system_id,'detail':client.detail,'last_keepalive':client.last_keepalive,'state':client.state, 'alerts':client.co_alerts, 'fali alerts':client.fail_sensor_alerts, 'users':client.users}
             return client_dict
         else:
             response.status = 404
 
     @expose('json')
     def get_all(self):
-#        badges = []
 	clients = []
-#        for badge in model.get_all_badges():
-#            badges.append(self.get_one(badge.badge_id))
 	for client in model.get_all_client_systems():
 	    clients.append(self.get_one(client.client_system_id))   
         return clients
@@ -60,8 +53,6 @@ class ClientSystemController(RestController):
 
     @expose('json')
     def edit_detail(self, client_id_old, detail):
-#        try:
-#         body = request.json
          client= model.get_client_system(client_id_old)
          if client.client_system_id:
              if model.edit_client_system(client_id_old, client_id_old, detail):
@@ -70,15 +61,16 @@ class ClientSystemController(RestController):
                  response.status = 404
          else:
              response.status = 404
-#        except ValueError:
-#            response.status = 400
 
     @expose('json')
     def edit_keepalive(self, client_system_id):
-#        try:
             client = model.get_client_system(client_system_id)
+            users = userController.UserController()
+
             if client.client_system_id:
                 model.keepalive_client_system(client_system_id)
-                response.status=201
+                return "keepalive sent"
+                
             else:
                 response.status=400
+    
