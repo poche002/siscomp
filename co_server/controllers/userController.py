@@ -22,8 +22,7 @@ class UserController(RestController):
     # metodo para enviar emails
     @expose()
     def send_email(self, emails, subject, message):
-		#mail de origen
-                fromaddr = "mail"
+                fromaddr = "sistemamonoxido@gmail.com"
                 recipients = emails
                 msg = MIMEMultipart()
                 msg['From'] = fromaddr
@@ -35,8 +34,7 @@ class UserController(RestController):
 
                 server = smtplib.SMTP('smtp.gmail.com',587)
                 server.starttls()
-		#aca va la contraseña del mail
-                server.login(fromaddr,"contraseña")
+                server.login(fromaddr,"sistemamonoxido2016")
                 text = msg.as_string()
                 server.sendmail(fromaddr, recipients, text)
                 server.quit()
@@ -83,10 +81,10 @@ class UserController(RestController):
     @expose('json')
     def get_one(self,user_id):
 	user = model.get_user(user_id)
-        if  user_id:
+        if user_id:
             user_dict = {'user_id':user.user_id, 'password':user.password,'fullname':user.fullname, 'email':user.email,'phone':user.phone, 'admin':user.admin, 'sistemas':user.client_systems}
             return user_dict
-	    else:
+        else:
             response.status = 404
 
     @expose('json')
