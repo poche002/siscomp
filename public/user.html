@@ -151,10 +151,10 @@ table, th, td {
         var client_system_id = formData[0].value;
 
         var add = new XMLHttpRequest();
-        add.open('GET', 'http://localhost:8080/users/?_method=add_cs_to_user;email_param='+query+'&client_system_id='+client_system_id, true);
+        add.open('GET', '/users/?_method=add_cs_to_user;email_param='+query+'&client_system_id='+client_system_id, true);
         add.send();
         alert("Client system added!");
-        window.location="http://localhost:8080/users.html";     
+        window.location="/users.html";     
     });
 
     //Tabla de CO Alerts y Users
