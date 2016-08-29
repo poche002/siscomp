@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+        <title>Client detail</title>  
+        <link rel="stylesheet" type="text/css" href="node_modules/angular-ui-grid/ui-grid.css" />
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+</meta>
+<style>
+body {background-color: lightgray;}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333333;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+}
+
+li a:hover {
+    background-color: #111111;
+}
+
+table, th, td {
+   align: left; 
+   border: 0;
+}
+
+</style>
+</head>
+
+<body>
+
+<ul>
+  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
+  <li><a href="http://localhost:8080/users.html">Users</a></li>
+  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+</ul>
+
+<br>
+<div>
+    <table align="left">
+      <tr>
+        <th>Client System ID:</th>
+        <td id=client_system_id></td>
+      </tr>
+      <tr>
+        <th>Detail:</th>
+        <td id="detail"></td>
+      </tr>
+      <tr>
+        <th>Last Keepalive:</th>
+        <td id="last_keepalive"></td>
+      </tr>
+      <tr>
+        <th>Status:</th>
+        <td id="status"></td>
+      </tr>
+    </table>
+</div>
+
+<div style="clear:both;"></div>
+<input type="button" onclick="del();" value="Delete"></button>
+<input type="button" onclick="edit();" value="Edit"></button>
+
+<br>
+<div>
+<table>
+    <tr>
+        <th>Users associated:</th>
+    </tr>
+    <tr>
+        <td id="s11"></td>
+        <td id="s12"></td>
+    </tr>
+    <tr>
+        <td id="s21"></td>
+        <td id="s22"></td>
+    </tr>
+    <tr>
+        <td id="s31"></td>
+        <td id="s32"></td>
+    </tr>
+</table>
+</div>
+
+
+<script type="text/javascript">
+
+    //tomo el email
+    var query = window.location.search.substring(1);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'http://localhost:8080/clients/?_method=get_one;client_id='+query, true);
+    xhr.send();
+    //if (xhr.readyState == 4 && xhr.status == 200) {
+    setTimeout(function(){
+        var response = JSON.parse(xhr.responseText);
+        //var response = xhr.responseText.serializeArray();
+        //alert(response);
+        document.getElementById("client_system_id").innerHTML = response.client_system_id;
+        document.getElementById("detail").innerHTML = response.detail;
+        document.getElementById("last_keepalive").innerHTML = response.last_keepalive;
+        document.getElementById("status").innerHTML = response.status;
+        //Rellenando usuarios asociados
+        document.getElementById("s11").innerHTML = response.users[0].user_id;
+        document.getElementById("s12").innerHTML = response.users[0].fullname;
+        document.getElementById("s21").innerHTML = response.users[1].user_id;
+        document.getElementById("s22").innerHTML = response.users[1].fullname;
+        document.getElementById("s31").innerHTML = response.users[2].user_id;
+        document.getElementById("s32").innerHTML = response.users[2].fullname;
+    }, 100)
+    
+    function del(){
+        var del = new XMLHttpRequest();
+        del.open('DELETE', 'http://localhost:8080/clients/?client_system_id='+query, true);
+        del.send();
+        alert("Client System deleted!");
+        window.location="http://localhost:8080/client_systems.html";
+    }
+
+    function edit(){
+        window.location="http://localhost:8080/edit_client.html?"+query;
+    }
+    
+    
+</script>
+
+</body>
+</html>

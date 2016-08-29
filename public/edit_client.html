@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+        <title>Edit Client</title>  
+        <!--<link rel="stylesheet" type="text/css" href="node_modules/angular-ui-grid/ui-grid.css" />-->
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/jquery-1.8.2.js"></script>
+</meta>
+<style>
+
+body {background-color: lightgray;}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333333;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+}
+
+li a:hover {
+    background-color: #111111;
+}
+</style>
+</head>
+
+<body>
+
+<ul>
+  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
+  <li><a href="http://localhost:8080/users.html">Users</a></li>
+  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+</ul>
+
+<form name="formulario" id="formulario" method="GET" enctype='application/json'>
+  <br> Client ID:<br>
+  <input type="text" name="client_id" id="client_id" value="">
+  <br> Detail:<br>
+  <input type="text" name="detail" id="detail" value=""><br>
+  <input type="submit">
+</form>
+
+<script type="text/javascript">
+
+  var query = window.location.search.substring(1);
+  var old_id;
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'http://localhost:8080/clients/?_method=get_one;client_id='+query, true);
+  xhr.send();
+    //if (xhr.readyState == 4 && xhr.status == 200) {
+  setTimeout(function(){
+        var response = JSON.parse(xhr.responseText);
+        //var response = xhr.responseText.serializeArray();
+        //alert(response);
+        old_id = response.client_system_id;
+        document.getElementById("client_id").value = response.client_system_id;
+        document.getElementById("detail").value = response.detail;
+    }, 100)
+
+
+var request;
+// Bind to the submit event of our form
+$("#formulario").submit(function(event){
+  // Abort any pending request
+    if (request) {
+        request.abort();
+    }
+    // setup some local variables
+    var $form = $(this);
+
+    // Let's select and cache all the fields
+    var $inputs = $form.find("input, select, button, textarea");
+
+    // Serialize the data in the form
+    //var serializedData = $form.serialize();
+    var formData = $form.serializeArray(); //JSON.stringify()
+    var client_system_id = formData[0].value;
+    var detail = formData[1].value;
+    var dictData = {
+            "client_system_id":client_system_id,
+            "detail":detail
+            };
+    var jsonData = JSON.stringify(dictData);
+
+    $inputs.prop("disabled", true);
+
+    // Fire off the request to /form.php
+    //request=$.put( "/users", jsonData);
+    request = $.ajax({
+      url: '/clients/?_method=edit_detail;client_id='+old_id+';detail='+detail,
+      type: 'GET',
+      //success: callback,
+      data: jsonData,
+      contentType: 'application/json'
+    });
+
+    // Callback handler that will be called on success
+    request.done(function (response, textStatus, jqXHR){
+        alert("Client System edited!");
+        // Log a message to the console
+        console.log("Hooray, it worked!");
+        //Para que limpie los campos
+        window.location="http://localhost:8080/client_systems.html";
+    });
+
+    // Callback handler that will be called on failure
+    request.fail(function (jqXHR, textStatus, errorThrown){
+        alert("ERROR! Client System did not edited!");
+        // Log the error to the console
+        console.error(
+            "The following error occurred: "+
+            textStatus, errorThrown
+        );
+    });
+
+    // Callback handler that will be called regardless
+    // if the request failed or succeeded
+    request.always(function () {
+        // Reenable the inputs
+        $inputs.prop("disabled", false);
+    });
+
+    // Prevent default posting of form
+    event.preventDefault();
+});
+
+
+</script>
+
+
+</body>
+</html>

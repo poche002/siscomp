@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+        <title>User detail</title>  
+        <link rel="stylesheet" type="text/css" href="node_modules/angular-ui-grid/ui-grid.css" />
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/jquery-1.8.2.js"></script>
+</meta>
+<style>
+body {background-color: lightgray;}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333333;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+}
+
+li a:hover {
+    background-color: #111111;
+}
+
+table, th, td {
+   align: left; 
+   border: 0;
+}
+
+</style>
+</head>
+
+<body>
+
+<ul>
+  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
+  <li><a href="http://localhost:8080/users.html">Users</a></li>
+  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+</ul>
+
+<br>
+<div>
+    <table align="left">
+      <tr>
+        <th>User ID:</th>
+        <td id=user_id></td>
+      </tr>
+      <tr>
+        <th>Name:</th>
+        <td id="fullname"></td>
+      </tr>
+      <tr>
+        <th>e-Mail:</th>
+        <td id="email"></td>
+      </tr>
+      <tr>
+        <th>Phone:</th>
+        <td id="phone"></td>
+      </tr>
+      <tr>
+        <th>Type:</th>
+        <td id="type"></td>
+      </tr>
+    </table>
+</div>
+<br>
+<div style="clear:both;"></div>
+<input type="button" onclick="del();" value="Delete"></button>
+<input type="button" onclick="edit();" value="Edit"></button>
+
+<div style="clear:both;"></div>
+
+<br>
+<div>
+<table>
+    <tr>
+        <th>Client Systems associated:</th>
+    </tr>
+    <tr>
+        <td id="s11"></td>
+        <td id="s12"></td>
+    </tr>
+    <tr>
+        <td id="s21"></td>
+        <td id="s22"></td>
+    </tr>
+    <tr>
+        <td id="s31"></td>
+        <td id="s32"></td>
+    </tr>
+    <tr>
+        <td id="s41"></td>
+        <td id="s42"></td>
+    </tr>
+    <tr>
+        <td id="s51"></td>
+        <td id="s52"></td>
+    </tr>
+</table>
+</div>
+
+<div style="clear:both;"></div>
+
+<h4>Add client system</h4>
+<form name="formulario" id="formulario" method="GET" enctype='application/json'>
+  <h5>Client ID:</h5>
+  <input type="text" name="client_id" id="client_id" value="">
+  <input type="submit">
+</form>
+
+<script type="text/javascript">
+
+    //tomo el email
+    var query = window.location.search.substring(1);
+    var email;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'http://localhost:8080/users/?_method=get_one_by_email;email_param='+query, true);
+    xhr.send();
+    //if (xhr.readyState == 4 && xhr.status == 200) {
+    setTimeout(function(){
+        var response = JSON.parse(xhr.responseText);
+        //var response = xhr.responseText.serializeArray();
+        //alert(response);
+        document.getElementById("user_id").innerHTML = response.user_id;
+        document.getElementById("fullname").innerHTML = response.fullname;
+        document.getElementById("email").innerHTML = response.email;
+        email=response.email;
+        document.getElementById("phone").innerHTML = response.phone;
+        document.getElementById("type").innerHTML = response.admin;
+        //Rellenando sistemas
+        document.getElementById("s11").innerHTML = response.sistemas[0].client_system_id;
+        document.getElementById("s12").innerHTML = response.sistemas[0].detail;
+        document.getElementById("s21").innerHTML = response.sistemas[1].client_system_id;
+        document.getElementById("s22").innerHTML = response.sistemas[1].detail;
+        document.getElementById("s31").innerHTML = response.sistemas[2].client_system_id;
+        document.getElementById("s32").innerHTML = response.sistemas[2].detail;
+        document.getElementById("s41").innerHTML = response.sistemas[3].client_system_id;
+        document.getElementById("s42").innerHTML = response.sistemas[3].detail;
+        document.getElementById("s51").innerHTML = response.sistemas[4].client_system_id;
+        document.getElementById("s52").innerHTML = response.sistemas[4].detail;
+    }, 100);
+    //}
+    //$( "id.user_id" ).replaceWith( "<h2>New heading</h2>" );
+    function del(){
+        var del = new XMLHttpRequest();
+        del.open('DELETE', 'http://localhost:8080/users/?email='+query, true);
+        del.send();
+        alert("User deleted!");
+        window.location="http://localhost:8080/users.html";
+    }
+
+    function edit(){
+        window.location="http://localhost:8080/edit_user.html?"+query;
+    }
+    
+    //var request;
+    $("#formulario").submit(function(event){
+        //if (request) {
+        //    request.abort();
+        //}
+
+        var $form = $(this);
+        
+        var formData = $form.serializeArray(); //JSON.stringify()
+        var client_system_id = formData[0].value;
+
+        var add = new XMLHttpRequest();
+        add.open('GET', 'http://localhost:8080/users/?_method=add_cs_to_user;email_param='+query+'&client_system_id='+client_system_id, true);
+        add.send();
+        alert("Client system added!");
+        window.location="http://localhost:8080/users.html";     
+    });
+
+</script>
+
+</body>
+</html>

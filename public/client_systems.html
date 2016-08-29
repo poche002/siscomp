@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html ng-app="clientsApp">
+<head>
+
+<meta charset="utf-8">
+        <title>Client Systems</title>  
+        <link rel="stylesheet" type="text/css" href="node_modules/angular-ui-grid/ui-grid.css" />
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/jquery-1.8.2.js"></script>
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/angular.js"></script>
+        <script type="text/javascript" src="node_modules/angular-ui-grid/ui-grid.js"></script>
+        <script type="text/javascript" src="clients_controller.js"></script>
+</meta>
+
+<style>
+body {background-color: lightgray;}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333333;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+}
+
+li a:hover {
+    background-color: #111111;
+}
+</style>
+</head>
+<body ng-controller="clients_controller">
+
+<ul>
+  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
+  <li><a href="http://localhost:8080/users.html">Users</a></li>
+  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+</ul>
+
+<div id="grid2" ui-grid="gridOptions" class="grid"></div>
+
+<form method="get" action="/add_client.html">
+    <button type="submit">Add Client</button>
+</form>
+
+</body>
+</html>

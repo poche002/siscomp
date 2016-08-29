@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+        <title>Add User</title>  
+        <!--<link rel="stylesheet" type="text/css" href="node_modules/angular-ui-grid/ui-grid.css" />-->
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/jquery-1.8.2.js"></script>
+        <!--<script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/angular.js"></script>
+        <script type="text/javascript" src="node_modules/angular-ui-grid/ui-grid.js"></script>
+        <script type="text/javascript" src="users_controller.js"></script>-->
+</meta>
+<style>
+
+body {background-color: lightgray;}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333333;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+}
+
+li a:hover {
+    background-color: #111111;
+}
+</style>
+</head>
+
+<body>
+
+<ul>
+  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
+  <li><a href="http://localhost:8080/users.html">Users</a></li>
+  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+</ul>
+
+<form name="formulario" id="formulario" method="POST" enctype='application/json'> <!-- action="addUser();" action="http://localhost:8080/users" method="post"> -->
+  <br> User ID:<br>
+  <input type="text" name="user_id" value=""><br>
+   Fullname:<br>
+  <input type="text" name="fullname" value=""><br>
+  e-Mail:<br>
+  <input type="text" name="email" value=""><br>
+  Phone:<br>
+  <input type="text" name="phone" value=""><br>
+  Type:<br>
+  <input type="radio" name="type" value="0"> Admin<br>
+  <input type="radio" name="type" value="1" checked> User<br>
+  <input type="radio" name="type" value="2"> Contact<br><br>
+  <input type="submit"> <!-- value="Submit" onclick="addUser();"> -->
+</form>
+
+<script type="text/javascript">
+
+formData2={ "user_id" : "13",
+   			"password" : "lalala",
+   			"fullname" : "Diego Provinciaini",
+   			"email" : "diegote@gmail.com2",
+   			"phone" : "56345634",
+   			"admin" : "0"
+		};
+
+//function addUser() {
+       //var user_id = $("user_id").val();
+       //var fullname = $("fullname").val();
+       //var email = $("email").val();
+       //var phone = $("phone").val();
+       //var type = $("type").val();
+
+       //var sendInfo = {
+       //	   UserID: user_id,	
+       //    Fullame: fullname,
+       //    eMail: email,
+       //    Phone: phone,
+       //    Type: type
+       //};
+       
+       //var formData = JSON.stringify($("#formulario").serializeArray());
+
+        
+
+       	//$.post( "/users", formData );
+
+       	/*
+       	$.ajax({
+           type: "POST",
+           url: "/users",
+           dataType: "json",
+           //contentType : 'application/json',
+           success: function (msg) {
+               if (msg) {
+                   alert("Somebody" + name + " was added in list !");
+                   //location.reload(true);
+               } else {
+                   alert("Cannot add to list !");
+               }
+           },
+           data: formData
+       });
+       */
+//}
+
+// Variable to hold request
+var request;
+
+// Bind to the submit event of our form
+$("#formulario").submit(function(event){
+
+	// Abort any pending request
+    if (request) {
+        request.abort();
+    }
+    // setup some local variables
+    var $form = $(this);
+
+    // Let's select and cache all the fields
+    var $inputs = $form.find("input, select, button, textarea");
+
+    // Serialize the data in the form
+    //var serializedData = $form.serialize();
+    var formData = $form.serializeArray(); //JSON.stringify()
+    var user_id = formData[0].value;
+    var fullname = formData[1].value;
+    var email = formData[2].value;
+    var phone = formData[3].value;
+    var type = formData[4].value;
+    
+    var dictData = {
+    				"user_id":user_id,
+    				"fullname":fullname,
+    				"email":email,
+    				"phone":phone,
+    				"admin":type
+    				};
+	
+    var jsonData = JSON.stringify(dictData);
+
+    // Let's disable the inputs for the duration of the Ajax request.
+    // Note: we disable elements AFTER the form data has been serialized.
+    // Disabled form elements will not be serialized.
+    $inputs.prop("disabled", true);
+
+    // Fire off the request to /form.php
+    request=$.post( "/users", jsonData);
+    /*
+    request = $.ajax({
+        url: "/users",
+        type: "post",
+        data: {  "user_id" : "13",
+   			"password" : "lalala",
+   			"fullname" : "Diego Provinciaini",
+   			"email" : "diegote@gmail.com2",
+   			"phone" : "56345634",
+   			"admin" : "0"
+		}
+    });
+	*/
+    // Callback handler that will be called on success
+    request.done(function (response, textStatus, jqXHR){
+        alert("User added!");
+        // Log a message to the console
+        console.log("Hooray, it worked!");
+        //Para que limpie los campos
+        location.reload(true);
+    });
+
+    // Callback handler that will be called on failure
+    request.fail(function (jqXHR, textStatus, errorThrown){
+        alert("ERROR! User exists!");
+        // Log the error to the console
+        console.error(
+            "The following error occurred: "+
+            textStatus, errorThrown
+        );
+    });
+
+    // Callback handler that will be called regardless
+    // if the request failed or succeeded
+    request.always(function () {
+        // Reenable the inputs
+        $inputs.prop("disabled", false);
+    });
+
+    // Prevent default posting of form
+    event.preventDefault();
+});
+
+
+</script>
+
+
+</body>
+</html>

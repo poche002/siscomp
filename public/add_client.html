@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+        <title>Add User</title>  
+        <link rel="stylesheet" type="text/css" href="node_modules/angular-ui-grid/ui-grid.css" />
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/jquery-1.8.2.js"></script>
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/angular.js"></script>
+        <script type="text/javascript" src="node_modules/angular-ui-grid/ui-grid.js"></script>
+</meta>
+<style>
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333333;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+}
+
+li a:hover {
+    background-color: #111111;
+}
+</style>
+</head>
+
+<body>
+
+<ul>
+  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
+  <li><a href="http://localhost:8080/users.html">Users</a></li>
+  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+</ul>
+
+<form name="formulario" id="formulario" method="POST" enctype='application/json'> <!-- action="addUser();" action="http://localhost:8080/users" method="post"> -->
+  <br> Client ID:<br>
+  <input type="text" name="client_id" value=""><br>
+  <input type="submit">
+</form>
+
+<script type="text/javascript">
+
+// Variable to hold request
+var request;
+
+// Bind to the submit event of our form
+$("#formulario").submit(function(event){
+
+	// Abort any pending request
+    if (request) {
+        request.abort();
+    }
+    // setup some local variables
+    var $form = $(this);
+
+    // Let's select and cache all the fields
+    var $inputs = $form.find("input, select, button, textarea");
+
+    // Serialize the data in the form
+    //var serializedData = $form.serialize();
+    var formData = $form.serializeArray(); //JSON.stringify()
+    var client_system_id = formData[0].value;
+    var dictData = {
+            "client_system_id":client_system_id
+            };
+    var jsonData = JSON.stringify(dictData);
+
+    // Let's disable the inputs for the duration of the Ajax request.
+    // Note: we disable elements AFTER the form data has been serialized.
+    // Disabled form elements will not be serialized.
+    $inputs.prop("disabled", true);
+
+    // Fire off the request to /form.php
+    request=$.post( "/clients", jsonData);
+   
+    // Callback handler that will be called on success
+    request.done(function (response, textStatus, jqXHR){
+        alert("Client system added!");
+        // Log a message to the console
+        console.log("Hooray, it worked!");
+        //Para que limpie los campos
+        location.reload(true);
+    });
+
+    // Callback handler that will be called on failure
+    request.fail(function (jqXHR, textStatus, errorThrown){
+        alert("ERROR! Client system exists!");
+        // Log the error to the console
+        console.error(
+            "The following error occurred: "+
+            textStatus, errorThrown
+        );
+    });
+
+    // Callback handler that will be called regardless
+    // if the request failed or succeeded
+    request.always(function () {
+        // Reenable the inputs
+        $inputs.prop("disabled", false);
+    });
+
+    // Prevent default posting of form
+    event.preventDefault();
+});
+
+</script>
+
+</body>
+</html>
