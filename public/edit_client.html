@@ -40,9 +40,9 @@ li a:hover {
 <body>
 
 <ul>
-  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
-  <li><a href="http://localhost:8080/users.html">Users</a></li>
-  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+  <li><a class="active" href="/index.html">Home</a></li>
+  <li><a href="/users.html">Users</a></li>
+  <li><a href="/client_systems.html">Client Systems</a></li>
 </ul>
 
 <form name="formulario" id="formulario" method="GET" enctype='application/json'>
@@ -59,7 +59,7 @@ li a:hover {
   var old_id;
 
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'http://localhost:8080/clients/?_method=get_one;client_id='+query, true);
+  xhr.open('GET', '/clients/?_method=get_one;client_id='+query, true);
   xhr.send();
     //if (xhr.readyState == 4 && xhr.status == 200) {
   setTimeout(function(){
@@ -114,7 +114,7 @@ $("#formulario").submit(function(event){
         // Log a message to the console
         console.log("Hooray, it worked!");
         //Para que limpie los campos
-        window.location="http://localhost:8080/client_systems.html";
+        window.location="/client_systems.html";
     });
 
     // Callback handler that will be called on failure

@@ -24,7 +24,7 @@ controller('clients_controller', ['$scope', '$http', function($scope, $http) {
         }, { 
             name: 'Hyperlink',
             cellTemplate:'<div class="ngCellText" ng-class="col.colIndex()">' +
-                   '<a href=http://localhost:8080/client_system.html?{{row.entity.client_system_id}}>Detail</a>' +
+                   '<a href=/client_system.html?{{row.entity.client_system_id}}>Detail</a>' +
                    '</div>' }
         ]
     };

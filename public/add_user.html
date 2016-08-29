@@ -6,9 +6,6 @@
         <!--<link rel="stylesheet" type="text/css" href="node_modules/angular-ui-grid/ui-grid.css" />-->
         <link rel="stylesheet" type="text/css" href="css/style.css" />
         <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/jquery-1.8.2.js"></script>
-        <!--<script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/angular.js"></script>
-        <script type="text/javascript" src="node_modules/angular-ui-grid/ui-grid.js"></script>
-        <script type="text/javascript" src="users_controller.js"></script>-->
 </meta>
 <style>
 
@@ -43,9 +40,9 @@ li a:hover {
 <body>
 
 <ul>
-  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
-  <li><a href="http://localhost:8080/users.html">Users</a></li>
-  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+  <li><a class="active" href="/index.html">Home</a></li>
+  <li><a href="/users.html">Users</a></li>
+  <li><a href="/client_systems.html">Client Systems</a></li>
 </ul>
 
 <form name="formulario" id="formulario" method="POST" enctype='application/json'> <!-- action="addUser();" action="http://localhost:8080/users" method="post"> -->
@@ -65,55 +62,6 @@ li a:hover {
 </form>
 
 <script type="text/javascript">
-
-formData2={ "user_id" : "13",
-   			"password" : "lalala",
-   			"fullname" : "Diego Provinciaini",
-   			"email" : "diegote@gmail.com2",
-   			"phone" : "56345634",
-   			"admin" : "0"
-		};
-
-//function addUser() {
-       //var user_id = $("user_id").val();
-       //var fullname = $("fullname").val();
-       //var email = $("email").val();
-       //var phone = $("phone").val();
-       //var type = $("type").val();
-
-       //var sendInfo = {
-       //	   UserID: user_id,	
-       //    Fullame: fullname,
-       //    eMail: email,
-       //    Phone: phone,
-       //    Type: type
-       //};
-       
-       //var formData = JSON.stringify($("#formulario").serializeArray());
-
-        
-
-       	//$.post( "/users", formData );
-
-       	/*
-       	$.ajax({
-           type: "POST",
-           url: "/users",
-           dataType: "json",
-           //contentType : 'application/json',
-           success: function (msg) {
-               if (msg) {
-                   alert("Somebody" + name + " was added in list !");
-                   //location.reload(true);
-               } else {
-                   alert("Cannot add to list !");
-               }
-           },
-           data: formData
-       });
-       */
-//}
-
 // Variable to hold request
 var request;
 

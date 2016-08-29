@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="clientsApp">
 <head>
 <meta charset="utf-8">
         <title>User detail</title>  
         <link rel="stylesheet" type="text/css" href="node_modules/angular-ui-grid/ui-grid.css" />
         <link rel="stylesheet" type="text/css" href="css/style.css" />
         <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/jquery-1.8.2.js"></script>
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/jquery-1.8.2.js"></script>
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/angular.js"></script>
+        <script type="text/javascript" src="node_modules/angular-ui-grid/ui-grid.js"></script>
 </meta>
 <style>
 body {background-color: lightgray;}
@@ -39,15 +42,21 @@ table, th, td {
    border: 0;
 }
 
+.grid {
+  width    : 400px !important;
+  max-width : 400px !important;
+  height   : 150px !important;
+}
+
 </style>
 </head>
 
 <body>
 
 <ul>
-  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
-  <li><a href="http://localhost:8080/users.html">Users</a></li>
-  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+  <li><a class="active" href="/index.html">Home</a></li>
+  <li><a href="/users.html">Users</a></li>
+  <li><a href="/client_systems.html">Client Systems</a></li>
 </ul>
 
 <br>
@@ -82,37 +91,13 @@ table, th, td {
 
 <div style="clear:both;"></div>
 
-<br>
-<div>
-<table>
-    <tr>
-        <th>Client Systems associated:</th>
-    </tr>
-    <tr>
-        <td id="s11"></td>
-        <td id="s12"></td>
-    </tr>
-    <tr>
-        <td id="s21"></td>
-        <td id="s22"></td>
-    </tr>
-    <tr>
-        <td id="s31"></td>
-        <td id="s32"></td>
-    </tr>
-    <tr>
-        <td id="s41"></td>
-        <td id="s42"></td>
-    </tr>
-    <tr>
-        <td id="s51"></td>
-        <td id="s52"></td>
-    </tr>
-</table>
+<br><br>
+<div ng-controller="clients_controller" id="grid2">
+<h4>Client Systems associated:</h4>
+<div ui-grid="gridOptions" class="grid"></div>
 </div>
 
-<div style="clear:both;"></div>
-
+<br>
 <h4>Add client system</h4>
 <form name="formulario" id="formulario" method="GET" enctype='application/json'>
   <h5>Client ID:</h5>
@@ -121,15 +106,14 @@ table, th, td {
 </form>
 
 <script type="text/javascript">
-
     //tomo el email
     var query = window.location.search.substring(1);
     var email;
 
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://localhost:8080/users/?_method=get_one_by_email;email_param='+query, true);
+    xhr.open('GET', '/users/?_method=get_one_by_email;email_param='+query, true);
     xhr.send();
-    //if (xhr.readyState == 4 && xhr.status == 200) {
+    
     setTimeout(function(){
         var response = JSON.parse(xhr.responseText);
         //var response = xhr.responseText.serializeArray();
@@ -140,30 +124,19 @@ table, th, td {
         email=response.email;
         document.getElementById("phone").innerHTML = response.phone;
         document.getElementById("type").innerHTML = response.admin;
-        //Rellenando sistemas
-        document.getElementById("s11").innerHTML = response.sistemas[0].client_system_id;
-        document.getElementById("s12").innerHTML = response.sistemas[0].detail;
-        document.getElementById("s21").innerHTML = response.sistemas[1].client_system_id;
-        document.getElementById("s22").innerHTML = response.sistemas[1].detail;
-        document.getElementById("s31").innerHTML = response.sistemas[2].client_system_id;
-        document.getElementById("s32").innerHTML = response.sistemas[2].detail;
-        document.getElementById("s41").innerHTML = response.sistemas[3].client_system_id;
-        document.getElementById("s42").innerHTML = response.sistemas[3].detail;
-        document.getElementById("s51").innerHTML = response.sistemas[4].client_system_id;
-        document.getElementById("s52").innerHTML = response.sistemas[4].detail;
+        
     }, 100);
-    //}
-    //$( "id.user_id" ).replaceWith( "<h2>New heading</h2>" );
+ 
     function del(){
         var del = new XMLHttpRequest();
-        del.open('DELETE', 'http://localhost:8080/users/?email='+query, true);
+        del.open('DELETE', '/users/?email='+query, true);
         del.send();
         alert("User deleted!");
-        window.location="http://localhost:8080/users.html";
+        window.location="/users.html";
     }
 
     function edit(){
-        window.location="http://localhost:8080/edit_user.html?"+query;
+        window.location="/edit_user.html?"+query;
     }
     
     //var request;
@@ -183,6 +156,27 @@ table, th, td {
         alert("Client system added!");
         window.location="http://localhost:8080/users.html";     
     });
+
+    //Tabla de CO Alerts y Users
+    var clients_app = angular.module('clientsApp', ['ui.grid']).
+    controller('clients_controller', ['$scope', '$http', function($scope, $http) {
+    
+        $http.get("/users/?_method=get_one_by_email;email_param="+query).
+        success(function(data) {
+            $scope.myData = data.sistemas;
+        })
+    
+        $scope.gridOptions = { 
+        data: 'myData',
+        columnDefs: [{
+            field: 'client_system_id',
+            displayName: 'Client System ID:'
+        }, {
+            field: 'detail',
+            displayName: 'Detail'
+        }]}
+
+    }]);
 
 </script>
 

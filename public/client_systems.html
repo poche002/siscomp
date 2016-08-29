@@ -40,15 +40,17 @@ li a:hover {
 }
 </style>
 </head>
-<body ng-controller="clients_controller">
+<body>
 
 <ul>
-  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
-  <li><a href="http://localhost:8080/users.html">Users</a></li>
-  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+  <li><a class="active" href="/index.html">Home</a></li>
+  <li><a href="/users.html">Users</a></li>
+  <li><a href="/client_systems.html">Client Systems</a></li>
 </ul>
 
-<div id="grid2" ui-grid="gridOptions" class="grid"></div>
+<div ng-controller="clients_controller" id="grid2"> <!-- class="grid">-->
+<div ui-grid="gridOptions" class="grid"></div>
+</div>
 
 <form method="get" action="/add_client.html">
     <button type="submit">Add Client</button>

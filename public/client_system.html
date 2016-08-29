@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="coalertsApp">
 <head>
 <meta charset="utf-8">
         <title>Client detail</title>  
         <link rel="stylesheet" type="text/css" href="node_modules/angular-ui-grid/ui-grid.css" />
         <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/jquery-1.8.2.js"></script>
+        <script type="text/javascript" src="node_modules/angular-ui-grid/node_modules/angular/angular.js"></script>
+        <script type="text/javascript" src="node_modules/angular-ui-grid/ui-grid.js"></script>
 </meta>
 <style>
 body {background-color: lightgray;}
@@ -38,15 +41,21 @@ table, th, td {
    border: 0;
 }
 
+.grid {
+  width    : 400px !important;
+  max-width : 400px !important;
+  height   : 150px !important;
+}
+
 </style>
 </head>
 
 <body>
 
 <ul>
-  <li><a class="active" href="http://localhost:8080/index.html">Home</a></li>
-  <li><a href="http://localhost:8080/users.html">Users</a></li>
-  <li><a href="http://localhost:8080/client_systems.html">Client Systems</a></li>
+  <li><a class="active" href="/index.html">Home</a></li>
+  <li><a href="/users.html">Users</a></li>
+  <li><a href="/client_systems.html">Client Systems</a></li>
 </ul>
 
 <br>
@@ -75,27 +84,13 @@ table, th, td {
 <input type="button" onclick="del();" value="Delete"></button>
 <input type="button" onclick="edit();" value="Edit"></button>
 
-<br>
-<div>
-<table>
-    <tr>
-        <th>Users associated:</th>
-    </tr>
-    <tr>
-        <td id="s11"></td>
-        <td id="s12"></td>
-    </tr>
-    <tr>
-        <td id="s21"></td>
-        <td id="s22"></td>
-    </tr>
-    <tr>
-        <td id="s31"></td>
-        <td id="s32"></td>
-    </tr>
-</table>
+<br><br>
+<div ng-controller="coalers_controller" id="grid2">
+<h4>CO Alerts:</h4>
+<div ui-grid="gridOptions1" class="grid"></div>
+<br><h4>Users:</h4>
+<div ui-grid="gridOptions2" class="grid"></div>
 </div>
-
 
 <script type="text/javascript">
 
@@ -103,7 +98,7 @@ table, th, td {
     var query = window.location.search.substring(1);
 
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://localhost:8080/clients/?_method=get_one;client_id='+query, true);
+    xhr.open('GET', '/clients/?_method=get_one;client_id='+query, true);
     xhr.send();
     //if (xhr.readyState == 4 && xhr.status == 200) {
     setTimeout(function(){
@@ -114,28 +109,52 @@ table, th, td {
         document.getElementById("detail").innerHTML = response.detail;
         document.getElementById("last_keepalive").innerHTML = response.last_keepalive;
         document.getElementById("status").innerHTML = response.status;
-        //Rellenando usuarios asociados
-        document.getElementById("s11").innerHTML = response.users[0].user_id;
-        document.getElementById("s12").innerHTML = response.users[0].fullname;
-        document.getElementById("s21").innerHTML = response.users[1].user_id;
-        document.getElementById("s22").innerHTML = response.users[1].fullname;
-        document.getElementById("s31").innerHTML = response.users[2].user_id;
-        document.getElementById("s32").innerHTML = response.users[2].fullname;
     }, 100)
     
     function del(){
         var del = new XMLHttpRequest();
-        del.open('DELETE', 'http://localhost:8080/clients/?client_system_id='+query, true);
+        del.open('DELETE', '/clients/?client_system_id='+query, true);
         del.send();
         alert("Client System deleted!");
-        window.location="http://localhost:8080/client_systems.html";
+        window.location="/client_systems.html";
     }
 
     function edit(){
-        window.location="http://localhost:8080/edit_client.html?"+query;
+        window.location="/edit_client.html?"+query;
     }
     
     
+    //Tabla de CO Alerts y Users
+    var coalerts_app = angular.module('coalertsApp', ['ui.grid']).
+    controller('coalers_controller', ['$scope', '$http', function($scope, $http) {
+    
+        $http.get("/clients/?_method=get_one;client_id="+query).
+        success(function(data) {
+            $scope.myData1 = data.alerts;
+            $scope.myData2 = data.users;
+        })
+    
+        $scope.gridOptions1 = { 
+        data: 'myData1',
+        columnDefs: [{
+            field: 'timestamp',
+            displayName: 'Timestamp'
+        }, {
+            field: 'measure_value',
+            displayName: 'Measure Value'
+        }]}
+
+        $scope.gridOptions2 = { 
+        data: 'myData2',
+        columnDefs: [{
+            field: 'user_id',
+            displayName: 'User ID:'
+        }, {
+            field: 'fullname',
+            displayName: 'Name:'
+        }]}
+    }]);
+
 </script>
 
 </body>
