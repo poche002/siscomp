@@ -21,7 +21,7 @@ class ClientSystemController(RestController):
                            'last_keepalive': client.last_keepalive,
                            'state': client.state,
                            'alerts': client.co_alerts,
-                           'fali alerts': client.fail_sensor_alerts,
+                           'fail_alerts': client.fail_sensor_alerts,
                            'users': client.users}
             return client_dict
         else:

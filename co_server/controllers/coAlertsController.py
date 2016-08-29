@@ -17,8 +17,7 @@ class CoAlertsController(RestController):
     }
     
     @expose('json')
-    def add_co_alert(self,client_system_id, measure_value):
-        
+    def add_co_alert(self, client_system_id, measure_value):
         client = model.get_client_system(client_system_id)
         users = userController.UserController()
         if client.client_system_id:

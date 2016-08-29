@@ -50,8 +50,8 @@ class Client_system(Base):
                         secondary=user_sis_client_association,
                         back_populates='client_systems')
 
-    co_alerts= relationship('Alert_CO')
-    fail_sensor_alerts= relationship('Alert_fail_sensor')
+    co_alerts = relationship('Alert_CO')
+    fail_sensor_alerts = relationship('Alert_fail_sensor')
 
     def __repr__(self):
         return "<Client_system(client_system_id='%s', detail='%s', last_keepalive='%s', state='%s')>" % \
@@ -62,7 +62,8 @@ class Alert_CO(Base):
     __tablename__ = 'alerts_co'
 
     id = Column(Integer, primary_key=True)
-    client_system_id = Column(Integer, ForeignKey('client_systems.id'))
+    client_system_id = Column(Integer, ForeignKey('client_systems.client_system_id'))
+    #client_system = relationship("Client_system", back_populates="alerts_co")
     timestamp = Column(String)
     measure_value = Column(String)
 
@@ -252,6 +253,7 @@ def add_co_alert(clientsystem_id, measure_value):
     timestamp=datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
     new_co_alert = Alert_CO(client_system_id=clientsystem_id, timestamp=timestamp, measure_value=measure_value)
     sess.add(new_co_alert)
+    #sess.query(Client_system).filter(Client_system.client_system_id == clientsystem_id).first().co_alerts.append(new_co_alert)
     sess.commit()
 
 
