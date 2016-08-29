@@ -78,29 +78,37 @@ class UserController(RestController):
         client= model.get_client_system(client_system_id)
         if email_param and client_system_id:
             model.add_client_system_to_user(user.email, client.client_system_id)
-            response.status=201
+            response.status = 201
         else:
-            response.status=400
+            response.status = 400
 
     
     @expose('json')
-    def get_one(self,user_id):
+    def get_one(self, user_id):
         user = model.get_user(user_id)
         if user_id:
-            user_dict = {'user_id':user.user_id, 'password':user.password,'fullname':user.fullname, 'email':user.email,'phone':user.phone, 'admin':user.admin, 'sistemas':user.client_systems}
+            user_dict = {'user_id': user.user_id,
+                         'password': user.password,
+                         'fullname': user.fullname,
+                         'email': user.email,
+                         'phone': user.phone,
+                         'admin': user.admin,
+                         'sistemas': user.client_systems}
             return user_dict
         else:
             response.status = 404
+
 
     @expose('json')
     def get_one_by_email(self, email_param):
         user = model.get_user(email=email_param)
         if email_param:
-            #user_dict = {'user_id':user.user_id, 'password':user.password,'fullname':user.fullname, 'email':user.email,'phone':user.phone, 'admin':user.admin, 'sistemas':user.client_systems}
-            user_dict = {'user_id':user.user_id, 'email':user.email, 'sistemas':user.client_systems}
+            user_dict = {'user_id':user.user_id, 'password':user.password,'fullname':user.fullname, 'email':user.email,'phone':user.phone, 'admin':user.admin, 'sistemas':user.client_systems}
+            #user_dict = {'user_id':user.user_id, 'email':user.email, 'sistemas':user.client_systems}
             return user_dict
         else:
             response.status = 400
+
 
     @expose('json')
     def get_all(self):
@@ -118,25 +126,38 @@ class UserController(RestController):
                 response.status = 409		#confict, user_id already in use
             else:
                 if (body['user_id'] and body['fullname'] and body['email']):
-                    model.add_user(body['user_id'], body['password'], body['fullname'], body['email'], body['phone'], body['admin'])
+                    model.add_user(user_id=body['user_id'],
+                                   password="null",
+                                   fullname=body['fullname'],
+                                   email=body['email'],
+                                   phone=body['phone'],
+                                   admin=body['admin'])
                     response.status = 201
                 else:
                     response.status = 400
         except ValueError:
             response.status = 400
 
+
     @expose()
-    def delete(self, user_id='none'):
-        if model.del_user(user_id):
+    def delete(self, email='none'):
+        aux=model.del_user(email=email)
+        if aux:
             response.status = 200
         else:
-            response.status = 404
+            response.status = 403
+
 
     @expose('json')
-    def put(self, user_id_old):
+    def put(self):
         try:
             body = request.json
-            if model.edit_user(user_id_old, body['user_id'], body['fullname'], body['password'], body['email']):
+            if model.edit_user( user_id_old=body['user_id_old'],
+                                user_id=body['user_id'],
+                                fullname=body['fullname'],
+                                email=body['email'],
+                                phone=body['phone'],
+                                admin=body['admin']):
                 response.status = 200
             else:
                 response.status = 404

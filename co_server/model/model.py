@@ -135,11 +135,18 @@ def del_user(user_id='none', email='none', phone=0):
     sess = Session()
     if sess.query(User).filter(User.user_id == user_id).count():
         sess.delete(sess.query(User).filter(User.user_id == user_id).first())
+        sess.commit()
+        return 2
     elif sess.query(User).filter(User.email == email).count():
         sess.delete(sess.query(User).filter(User.email == email).first())
+        sess.commit()
+        return 1
     elif sess.query(User).filter(User.phone == phone).count():
         sess.delete(sess.query(User).filter(User.phone == phone).first())
-    sess.commit()
+        sess.commit()
+        return 1
+    else:
+        return 0
 
 
 def edit_user(user_id_old='none', email_old='none', phone_old=0,
@@ -150,15 +157,23 @@ def edit_user(user_id_old='none', email_old='none', phone_old=0,
         sess.query(User).filter(User.user_id == user_id_old).update({"user_id" : user_id, "password" : password,
                                                                      "fullname" : fullname, "email" : email,
                                                                      "phone" : phone, "admin" : admin})
+        sess.commit()
+        return 1
     elif sess.query(User).filter(User.email == email_old).count():
         sess.query(User).filter(User.email == email_old).update({"user_id" : user_id, "password" : password,
                                                                      "fullname" : fullname, "email" : email,
                                                                      "phone" : phone, "admin" : admin})
+        sess.commit()
+        return 1
     elif sess.query(User).filter(User.phone == phone_old).count():
         sess.query(User).filter(User.phone == phone_old).update({"user_id" : user_id, "password" : password,
                                                                      "fullname" : fullname, "email" : email,
                                                                      "phone" : phone, "admin" : admin})
-    sess.commit()
+        sess.commit()
+        return 1
+    else:
+        return 0
+
 
 
 """FUNCIONES PARA CLIENT_SYSTEMS"""
@@ -191,18 +206,23 @@ def del_client_system(client_system_id):
     sess = Session()
     if sess.query(Client_system).filter(Client_system.client_system_id == client_system_id).count():
         sess.delete(sess.query(Client_system).filter(Client_system.client_system_id == client_system_id).first())
-    sess.commit()
+        sess.commit()
+        return 1
+    else:
+        return 0
 
 
 def edit_client_system(client_system_id_old, client_system_id, detail):
     Session = sessionmaker(bind=conf.sqlalchemy.engine)
     sess = Session()
     if sess.query(Client_system).filter(Client_system.client_system_id == client_system_id_old).count():
-            sess.query(Client_system).\
+        sess.query(Client_system).\
                 filter(Client_system.client_system_id == client_system_id_old).\
                 update({"client_system_id" : client_system_id, "detail" : detail})
-    sess.commit()
-
+        sess.commit()
+        return 1
+    else:
+        return 0
 
 def keepalive_client_system(client_system_id):
     Session = sessionmaker(bind=conf.sqlalchemy.engine)
